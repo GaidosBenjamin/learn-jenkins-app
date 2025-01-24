@@ -31,8 +31,24 @@ pipeline {
             steps {
                 sh '''
                     echo "Test stage ..."
-                    test -f build/index.html
+                    # test -f build/index.html
                     npm test
+                '''
+            }
+        }
+
+        stage('E2E Test') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.50.0-noble'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm install serve
+                    node_modules/.bin/serve -s build
+                    npx playwright test
                 '''
             }
         }
