@@ -88,7 +88,7 @@ pipeline {
                     cat deploy-output.json
                 '''
                 script {
-                    env.STAGE_URL = sh(script: "node-jq -r '.deploy_url' deploy-output.json", returnStdout: true)
+                    env.STAGE_URL = sh(script: "jq -r '.deploy_url' deploy-output.json", returnStdout: true)
                 }
             }
         }
