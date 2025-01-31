@@ -3,10 +3,12 @@ pipeline {
 
     environment {
         REACT_APP_VERSION = "1.0.${BUILD_ID}"
+        APP_NAME = "my-jenkins-app"
         AWS_DEFAULT_REGION = 'eu-central-1'
         AWS_ECS_CLUSTER = 'LearnJenkinsApp-Prod'
         AWS_ECS_SERVICE = 'learn-jenkins-app-service'
         AWS_ECS_TASK_DEFINITION = 'LearnJenkinsApp-TaskDefinition-Prod'
+        AWS_ECR = "471112858623.dkr.ecr.eu-central-1.amazonaws.com"
     }
 
     stages {
@@ -38,9 +40,13 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    docker build -t my-jenkins-app .
-                '''
+                withCredentials([usernamePassword(credentialsId: 'jenkins-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        docker build -t ${AWS_ECR}/${APP_NAME}:${REACT_APP_VERSION} .
+                        aws ecr get-login-password | docker login --username AWS --password-stdin ${AWC_ECR}
+                        docker push ${AWS_ECR}/${APP_NAME}:${REACT_APP_VERSION}
+                    '''
+                }
             }
         }
 
@@ -48,7 +54,7 @@ pipeline {
             agent {
                 docker {
                     image 'my-aws-cli'
-                    args "-u root --entrypoint=''"
+                    args "--entrypoint=''"
                     reuseNode true
                 }
             }
