@@ -43,8 +43,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'jenkins-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         docker build -t ${AWS_ECR}/${APP_NAME}:${REACT_APP_VERSION} .
-                        ECR_PASSWORD=$(aws ecr get-login-password)
-                        docker login --username AWS --password ${ECR_PASSWORD} ${AWC_ECR}
+                        aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ECR}
                         docker push ${AWS_ECR}/${APP_NAME}:${REACT_APP_VERSION}
                     '''
                 }
